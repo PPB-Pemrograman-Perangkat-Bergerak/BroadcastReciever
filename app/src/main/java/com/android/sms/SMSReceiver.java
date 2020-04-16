@@ -14,27 +14,35 @@ import androidx.annotation.RequiresApi;
 
 public class SMSReceiver extends BroadcastReceiver
 {
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onReceive(Context context, Intent intent)
     {
-//---get the SMS message passed in---
+        //---get the SMS message passed in---
         Bundle bundle = intent.getExtras();
         SmsMessage[] msgs = null;
-        String str = "SMS Dari ";
+        String str = "SMS from ";
         if (bundle != null)
         {
-            int i;
-//---retrieve the SMS message received---
+            //---retrieve the SMS message received---
             msgs = Telephony.Sms.Intents.getMessagesFromIntent(intent);
-            for ( i=0; i<msgs.length; i++){
+
+            for (int i=0; i<msgs.length; i++){
                 str += msgs[i].getMessageBody().toString();
             }
-//---get the message body---
-            str += msgs[i].getMessageBody().toString();
+            //---display the new SMS message---
+            Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
+            Log.d("SMSReceiver", str);
+
+            //---launch the SMSActivity---
+            Intent mainActivityIntent = new Intent(context, MainActivity.class);
+            mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(mainActivityIntent);
+
+            Intent broadcastIntent = new Intent();
+            broadcastIntent.setAction("SMS_RECEIVED_ACTION");
+            broadcastIntent.putExtra("sms", str);
+            context.sendBroadcast(broadcastIntent);
+
         }
-//---display the new SMS message---
-        Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
-        Log.d("SMS Receiver Disini", str);
     }
 }
